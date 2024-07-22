@@ -4,9 +4,21 @@
 # In[5]:
 
 pip install -r requirements.txt
-import pandas as pd
 import streamlit as st
+import pandas as pd
+import nltk
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+from nltk.corpus import stopwords
+from collections import Counter
 
+# Download necessary NLTK data
+nltk.download('vader_lexicon')
+nltk.download('stopwords')
+
+# Initialize sentiment analyzer
+sid = SentimentIntensityAnalyzer()
+
+# Sample data
 data = {
     "customer_id": [1, 2, 3, 4, 5],
     "feedback": [
@@ -18,12 +30,8 @@ data = {
     ]
 }
 
+# Create DataFrame
 feedback_df = pd.DataFrame(data)
-print(feedback_df)
-
-
-# In[8]:
-
 
 # Function to analyze feedback
 def analyze_feedback(feedback_df):
@@ -37,38 +45,8 @@ def analyze_feedback(feedback_df):
 
     return feedback_df, word_freq
 
-
-# In[2]:
-
-
-import nltk
-from nltk.sentiment.vader import SentimentIntensityAnalyzer
-from nltk.corpus import stopwords
-from collections import Counter
-
-nltk.download('vader_lexicon')
-nltk.download('stopwords')
-
-# Initialize sentiment analyzer
-sid = SentimentIntensityAnalyzer()
-
-# Analyze sentiments
-feedback_df['sentiments'] = feedback_df['feedback'].apply(lambda x: sid.polarity_scores(x))
-
-# Extract most common words excluding stopwords
-stop_words = set(stopwords.words('english'))
-all_words = ' '.join(feedback_df['feedback']).lower().split()
-filtered_words = [word for word in all_words if word not in stop_words]
-word_freq = Counter(filtered_words)
-
-print("Most common words:", word_freq.most_common(10))
-print(feedback_df[['feedback', 'sentiments']])
-
-
-# In[3]:
-
-
-def suggest_recipe(feedback_df):
+# Function to suggest recipes
+def suggest_recipe(feedback_df, word_freq):
     negative_feedback = feedback_df[feedback_df['sentiments'].apply(lambda x: x['compound']) < 0]
     positive_feedback = feedback_df[feedback_df['sentiments'].apply(lambda x: x['compound']) > 0]
 
@@ -88,20 +66,9 @@ def suggest_recipe(feedback_df):
         'popular_ingredients': popular_ingredients[:5]
     }
 
-recipe_suggestions = suggest_recipe(feedback_df)
-print("Recipe Suggestions:", recipe_suggestions)
-
-
-# In[6]:
-
-
 # Streamlit interface
 st.title('Pasta Feedback Analyzer')
 st.write("This app analyzes customer feedback on pasta taste and suggests improvements for new recipes.")
-
-
-# In[10]:
-
 
 feedback_df, word_freq = analyze_feedback(feedback_df)
 
@@ -117,7 +84,7 @@ if st.checkbox('Show word frequency'):
     st.subheader('Word Frequency')
     st.write(word_freq.most_common(10))
 
-recipe_suggestions = suggest_recipe(feedback_df)
+recipe_suggestions = suggest_recipe(feedback_df, word_freq)
 
 st.subheader('Recipe Suggestions')
 st.write("### Improvements")
@@ -127,4 +94,5 @@ for improvement in recipe_suggestions['improvements']:
 st.write("### Popular Ingredients")
 for ingredient in recipe_suggestions['popular_ingredients']:
     st.write(f"- {ingredient}")
+
 
