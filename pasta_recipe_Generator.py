@@ -52,6 +52,7 @@ def suggest_recipe(feedback_df, word_freq):
             improvements.append('Cook pasta for a shorter time')
         if 'sweet' in feedback:
             improvements.append('Reduce the sweetness of the sauce')
+    stop_words = set(stopwords.words('english'))
     popular_ingredients = [word for word, count in word_freq.most_common() if word not in stop_words and word not in improvements]
     return {
         'improvements': improvements,
