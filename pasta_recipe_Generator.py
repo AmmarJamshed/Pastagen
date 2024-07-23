@@ -54,10 +54,7 @@ def suggest_recipe(feedback_df, word_freq):
     print("Improvements:", improvements)
     popular_ingredients = [word for word, count in word_freq.most_common() if word not in stop_words and word not in improvements]
     print("Popular Ingredients:", popular_ingredients)  # Debug print statement
-    return {
-        'improvements': improvements,
-        'popular_ingredients': popular_ingredients[:5]
-    }
+    return {'improvements': improvements,'popular_ingredients': popular_ingredients[:5]}
 # Streamlit interface
 st.title('Pasta Feedback Analyzer')
 st.write("This app analyzes customer feedback on pasta taste and suggests improvements for new recipes.")
