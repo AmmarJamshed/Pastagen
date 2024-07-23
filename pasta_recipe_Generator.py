@@ -7,14 +7,11 @@ import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from nltk.corpus import stopwords
 from collections import Counter
-
 # Download necessary NLTK data
 nltk.download('vader_lexicon')
 nltk.download('stopwords')
-
 # Initialize sentiment analyzer
 sid = SentimentIntensityAnalyzer()
-
 # Sample data
 data = {
     "customer_id": [1, 2, 3, 4, 5],
@@ -29,7 +26,6 @@ data = {
 
 # Create DataFrame
 feedback_df = pd.DataFrame(data)
-
 # Function to analyze feedback
 def analyze_feedback(feedback_df):
     feedback_df['sentiments'] = feedback_df['feedback'].apply(lambda x: sid.polarity_scores(x))
@@ -39,7 +35,6 @@ def analyze_feedback(feedback_df):
     filtered_words = [word for word in all_words if word not in stop_words]
     word_freq = Counter(filtered_words)
     return feedback_df, word_freq
-
 # Function to suggest recipes
 def suggest_recipe(feedback_df, word_freq):
     negative_feedback = feedback_df[feedback_df['sentiments'].apply(lambda x: x['compound']) < 0]
@@ -53,12 +48,16 @@ def suggest_recipe(feedback_df, word_freq):
         if 'sweet' in feedback:
             improvements.append('Reduce the sweetness of the sauce')
     stop_words = set(stopwords.words('english'))
+    # Debug: Print statements to understand the error
+    print("Word Frequency:", word_freq)
+    print("Stop Words:", stop_words)
+    print("Improvements:", improvements)
     popular_ingredients = [word for word, count in word_freq.most_common() if word not in stop_words and word not in improvements]
+    print("Popular Ingredients:", popular_ingredients)  # Debug print statement
     return {
         'improvements': improvements,
         'popular_ingredients': popular_ingredients[:5]
     }
-
 # Streamlit interface
 st.title('Pasta Feedback Analyzer')
 st.write("This app analyzes customer feedback on pasta taste and suggests improvements for new recipes.")
